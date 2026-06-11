@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Integral Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.2.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        input { padding: 8px; width: 80px; }
+        button { padding: 8px 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Integral Calculator</h2>
+    <p>f(x) = <input type="text" id="func" value="x^2"></p>
+    <p>Lower Limit: <input type="number" id="lower" value="0"> 
+       Upper Limit: <input type="number" id="upper" value="2"></p>
+    <button onclick="calculate()">Calculate & Graph</button>
+    
+    <h3 id="result">Result: --</h3>
+    <div id="plot"></div>
+</div>
+
+<script>
+    function calculate() {
+        const expression = document.getElementById('func').value;
+        const lower = parseFloat(document.getElementById('lower').value);
+        const upper = parseFloat(document.getElementById('upper').value);
+
+        // 1. Calculate Integral using Math.js
+        try {
+            const f = math.parse(expression).compile();
+            const integral = math.integral(expression, 'x');
+            const result = integral.evaluate({x: upper}) - integral.evaluate({x: lower});
+            document.getElementById('result').innerText = "Result: " + result.toFixed(4);
+
+            // 2. Plotting
+            const xValues = math.range(lower - 2, upper + 2, 0.1).toArray();
+            const yValues = xValues.map(x => f.evaluate({x: x}));
+
+            const trace = { x: xValues, y: yValues, type: 'scatter', name: 'f(x)' };
+            Plotly.newPlot('plot', [trace], { title: 'Graph of ' + expression });
+        } catch (err) {
+            alert("Invalid Expression");
+        }
+    }
+</script>
+
+</body>
+</html>
